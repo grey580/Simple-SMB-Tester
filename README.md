@@ -8,6 +8,12 @@ Simple SMB Tester is a lightweight Windows desktop utility for checking whether 
 
 It is designed for quick troubleshooting when you need to confirm whether a target path works with **SMB 1**, **SMB 2**, or **SMB 3** — especially useful for older scanners, copiers, and other devices that may only support specific SMB versions.
 
+## Screenshot
+
+<p align="center">
+  <img src="assets/SimpleSmbTester-screenshot.png" alt="Simple SMB Tester application screenshot" width="720" />
+</p>
+
 ## Features
 
 - Targets **.NET Framework 4.6**
