@@ -1,7 +1,7 @@
 # Simple SMB Tester
 
 <p align="center">
-  <img src="AppLogo.png" alt="Simple SMB Tester logo" width="160" />
+  <img src="assets/AppLogo.png" alt="Simple SMB Tester logo" width="160" />
 </p>
 
 Simple SMB Tester is a lightweight Windows desktop utility for checking whether a username and password can authenticate to an SMB share or folder path.
@@ -14,7 +14,11 @@ It is designed for quick troubleshooting when you need to confirm whether a targ
 - Tests **SMB 1**, **SMB 2**, and **SMB 3**
 - Validates both authentication and the requested **share/folder path**
 - Shows a clear **success/failure** result in the UI
-- Includes a portable **single EXE** build at the repository root: `SimpleSmbTester.exe`
+- Includes a portable **single EXE** build in [`artifacts/SimpleSmbTester.exe`](./artifacts/SimpleSmbTester.exe)
+
+## Download the EXE
+
+- **Portable EXE:** [`artifacts/SimpleSmbTester.exe`](./artifacts/SimpleSmbTester.exe)
 
 ## What the App Does
 
@@ -34,18 +38,17 @@ That makes it useful for separating:
 
 ## Usage
 
-1. Launch `SimpleSmbTester.exe`.
+1. Launch [`artifacts/SimpleSmbTester.exe`](./artifacts/SimpleSmbTester.exe).
 2. Choose the SMB version you want to test.
 3. Enter a UNC path such as `\\server\share` or `\\server\share\folder`.
 4. Enter the username and password.
 5. Click **Test Credentials**.
 
-## Project Files
+## Project Structure
 
-- `SimpleSmbTester.csproj` - WinForms project
-- `Form1.cs` / `Form1.Designer.cs` - main UI
-- `SmbTestService.cs` - credential and path validation logic
-- `AppLogo.png` / `AppIcon.ico` - branding assets
+- `src/` - WinForms source code and project file
+- `assets/` - logo, icon, and donation QR image
+- `artifacts/` - ready-to-run EXE
 
 ## Third-Party Licensing
 

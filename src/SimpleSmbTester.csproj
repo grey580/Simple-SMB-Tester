@@ -9,7 +9,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <ApplicationIcon>AppIcon.ico</ApplicationIcon>
+    <ApplicationIcon>..\assets\AppIcon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,7 +21,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="AppLogo.png" />
+    <EmbeddedResource Include="..\assets\AppLogo.png">
+      <LogicalName>SimpleSmbTester.AppLogo.png</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>
