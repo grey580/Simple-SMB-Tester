@@ -1,6 +1,12 @@
 # Simple SMB Tester
 
-Simple SMB Tester is a Windows desktop utility for checking whether a set of credentials can authenticate to a UNC share or folder path.
+<p align="center">
+  <img src="AppLogo.png" alt="Simple SMB Tester logo" width="160" />
+</p>
+
+Simple SMB Tester is a lightweight Windows desktop utility for checking whether a username and password can authenticate to an SMB share or folder path.
+
+It is designed for quick troubleshooting when you need to confirm whether a target path works with **SMB 1**, **SMB 2**, or **SMB 3** — especially useful for older scanners, copiers, and other devices that may only support specific SMB versions.
 
 ## Features
 
@@ -9,6 +15,22 @@ Simple SMB Tester is a Windows desktop utility for checking whether a set of cre
 - Validates both authentication and the requested **share/folder path**
 - Shows a clear **success/failure** result in the UI
 - Includes a portable **single EXE** build at the repository root: `SimpleSmbTester.exe`
+
+## What the App Does
+
+Simple SMB Tester lets you:
+
+1. pick the SMB version you want to test
+2. enter a UNC path such as `\\server\share\folder`
+3. supply credentials
+4. verify whether the login succeeds and whether the requested folder can actually be opened
+
+That makes it useful for separating:
+
+- bad credentials
+- SMB version mismatch
+- share-level access problems
+- folder-level permission or path issues
 
 ## Usage
 
