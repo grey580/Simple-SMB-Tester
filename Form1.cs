@@ -88,5 +88,18 @@ namespace SimpleSmbTester
                 }
             }
         }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var dialog = new AboutDialog(pictureLogo.Image))
+            {
+                dialog.ShowDialog(this);
+            }
+        }
     }
 }
