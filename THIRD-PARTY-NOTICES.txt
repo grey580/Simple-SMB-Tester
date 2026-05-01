@@ -1,0 +1,19 @@
+Simple SMB Tester includes SMBLibrary package usage and modified SMBLibrary-derived source files.
+
+Included/adapted files:
+- ExactSmb2Client.cs
+- ExactSmb2FileStore.cs
+- SMB2Cryptography.cs
+- SP800_1008.cs
+
+Original project:
+- SMBLibrary by Tal Aloni
+- https://github.com/TalAloni/SMBLibrary
+
+License:
+- GNU Lesser General Public License v3.0 or later
+- See SMBLibrary-LICENSE.txt
+
+Notes:
+- The SMBLibrary-derived files in this repository retain their original copyright headers.
+- These files were adapted to support exact SMB2-only and SMB3-only testing in the Simple SMB Tester UI.
