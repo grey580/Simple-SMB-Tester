@@ -77,7 +77,7 @@ namespace SimpleSmbTester
                 return;
             }
 
-            SetStatus(StatusTone.Neutral, string.Empty, "Enter a UNC path, username, and password.", "Windows Server 2022 normally supports SMB 2 and SMB 3 by default. SMB 1 is included here for legacy copier checks.");
+            SetStatus(StatusTone.Neutral, "WAITING", "Enter a UNC path, username, and password.", "Windows Server 2022 normally supports SMB 2 and SMB 3 by default. SMB 1 is included here for legacy copier checks.");
         }
 
         private bool HasRequiredInputs()
@@ -110,7 +110,7 @@ namespace SimpleSmbTester
                 case StatusTone.Failure:
                     return Color.FromArgb(132, 28, 28);
                 default:
-                    return Color.FromArgb(96, 96, 96);
+                    return Color.FromArgb(22, 89, 143);
             }
         }
 
