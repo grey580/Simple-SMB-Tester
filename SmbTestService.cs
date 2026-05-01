@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using SMBLibrary;
 using SMBLibrary.Client;
+using SMBLibrary.SMB1;
 using SMBLibrary.SMB2;
 
 namespace SimpleSmbTester
@@ -71,21 +72,22 @@ namespace SimpleSmbTester
                 var loginStatus = client.Login(credential.Domain, credential.UserName, password);
                 if (loginStatus != NTStatus.STATUS_SUCCESS)
                 {
-                    return Fail("SMB 1 login failed.", "Login status: " + loginStatus);
+                    return Fail("SMB 1 login failed.", "Login status: " + FormatStatus(loginStatus));
                 }
 
                 NTStatus treeStatus;
-                store = client.TreeConnect(pathInfo.ShareName, out treeStatus);
+                var smb1SharePath = @"\\" + pathInfo.ServerName + "\\" + pathInfo.ShareName;
+                store = client.TreeConnect(smb1SharePath, ServiceName.DiskShare, out treeStatus);
                 if (treeStatus != NTStatus.STATUS_SUCCESS || store == null)
                 {
-                    return Fail("Connected but could not open the share.", "Tree connect status: " + treeStatus);
+                    return Fail("Connected but could not open the share.", "SMB 1 tree connect path: " + smb1SharePath + "\r\nTree connect status: " + FormatStatus(treeStatus));
                 }
 
                 NTStatus folderStatus;
                 string folderMessage;
                 if (!ValidateFolderAccess(store, pathInfo.RelativePath, out folderStatus, out folderMessage))
                 {
-                    return Fail("Credential worked, but the folder path was not accessible.", "Protocol: SMB 1\r\nTransport: " + transportLabel + "\r\nStatus: " + folderStatus + "\r\n" + folderMessage);
+                    return Fail("Credential worked, but the folder path was not accessible.", "Protocol: SMB 1\r\nTransport: " + transportLabel + "\r\nStatus: " + FormatStatus(folderStatus) + "\r\n" + folderMessage);
                 }
 
                 return Success("SMB 1 test succeeded.", "Protocol: SMB 1\r\nTransport: " + transportLabel + "\r\nShare: \\\\" + pathInfo.ServerName + "\\" + pathInfo.ShareName + "\r\nFolder: " + (string.IsNullOrEmpty(pathInfo.RelativePath) ? "<share root>" : pathInfo.RelativePath));
@@ -114,21 +116,21 @@ namespace SimpleSmbTester
                 var loginStatus = client.Login(credential.Domain, credential.UserName, password);
                 if (loginStatus != NTStatus.STATUS_SUCCESS)
                 {
-                    return Fail(requestedLabel + " login failed.", "Login status: " + loginStatus + "\r\nNegotiated dialect: " + client.NegotiatedDialect);
+                    return Fail(requestedLabel + " login failed.", "Login status: " + FormatStatus(loginStatus) + "\r\nNegotiated dialect: " + client.NegotiatedDialect);
                 }
 
                 NTStatus treeStatus;
                 store = client.TreeConnect(pathInfo.ShareName, out treeStatus);
                 if (treeStatus != NTStatus.STATUS_SUCCESS || store == null)
                 {
-                    return Fail("Connected but could not open the share.", "Requested protocol: " + requestedLabel + "\r\nNegotiated dialect: " + client.NegotiatedDialect + "\r\nTree connect status: " + treeStatus);
+                    return Fail("Connected but could not open the share.", "Requested protocol: " + requestedLabel + "\r\nNegotiated dialect: " + client.NegotiatedDialect + "\r\nTree connect status: " + FormatStatus(treeStatus));
                 }
 
                 NTStatus folderStatus;
                 string folderMessage;
                 if (!ValidateFolderAccess(store, pathInfo.RelativePath, out folderStatus, out folderMessage))
                 {
-                    return Fail("Credential worked, but the folder path was not accessible.", "Requested protocol: " + requestedLabel + "\r\nNegotiated dialect: " + client.NegotiatedDialect + "\r\nStatus: " + folderStatus + "\r\n" + folderMessage);
+                    return Fail("Credential worked, but the folder path was not accessible.", "Requested protocol: " + requestedLabel + "\r\nNegotiated dialect: " + client.NegotiatedDialect + "\r\nStatus: " + FormatStatus(folderStatus) + "\r\n" + folderMessage);
                 }
 
                 return Success(requestedLabel + " test succeeded.", "Requested protocol: " + requestedLabel + "\r\nNegotiated dialect: " + client.NegotiatedDialect + "\r\nShare: \\\\" + pathInfo.ServerName + "\\" + pathInfo.ShareName + "\r\nFolder: " + (string.IsNullOrEmpty(pathInfo.RelativePath) ? "<share root>" : pathInfo.RelativePath));
@@ -242,6 +244,11 @@ namespace SimpleSmbTester
                 StatusText = statusText,
                 DetailsText = detailsText
             };
+        }
+
+        private static string FormatStatus(NTStatus status)
+        {
+            return status + " (0x" + ((uint)status).ToString("X8") + ")";
         }
 
         private static SmbTestResult Fail(string statusText, string detailsText)
