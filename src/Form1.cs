@@ -20,7 +20,7 @@ namespace SimpleSmbTester
             {
                 Icon = executableIcon;
             }
-            SetStatus(false, "Ready to test a UNC path.", "Windows Server 2022 normally supports SMB 2 and SMB 3 by default. SMB 1 is included here for legacy copier checks.");
+            UpdateReadyState();
         }
 
         private async void btnTest_Click(object sender, EventArgs e)
@@ -61,13 +61,57 @@ namespace SimpleSmbTester
             btnTest.Enabled = enabled;
         }
 
+        private void InputFields_TextChanged(object sender, EventArgs e)
+        {
+            if (comboSmbVersion.Enabled)
+            {
+                UpdateReadyState();
+            }
+        }
+
+        private void UpdateReadyState()
+        {
+            if (HasRequiredInputs())
+            {
+                SetStatus(StatusTone.Neutral, "READY", "Ready to test a UNC path.", "Windows Server 2022 normally supports SMB 2 and SMB 3 by default. SMB 1 is included here for legacy copier checks.");
+                return;
+            }
+
+            SetStatus(StatusTone.Neutral, string.Empty, "Enter a UNC path, username, and password.", "Windows Server 2022 normally supports SMB 2 and SMB 3 by default. SMB 1 is included here for legacy copier checks.");
+        }
+
+        private bool HasRequiredInputs()
+        {
+            return !string.IsNullOrWhiteSpace(txtPath.Text)
+                && !string.IsNullOrWhiteSpace(txtUsername.Text)
+                && !string.IsNullOrWhiteSpace(txtPassword.Text);
+        }
+
         private void SetStatus(bool success, string headline, string details)
         {
-            lblResult.Text = success ? "SUCCESS" : "FAILURE";
-            lblResult.BackColor = success ? Color.FromArgb(32, 102, 52) : Color.FromArgb(132, 28, 28);
+            SetStatus(success ? StatusTone.Success : StatusTone.Failure, success ? "SUCCESS" : "FAILURE", headline, details);
+        }
+
+        private void SetStatus(StatusTone tone, string resultText, string headline, string details)
+        {
+            lblResult.Text = resultText;
+            lblResult.BackColor = GetStatusBackColor(tone);
             lblResult.ForeColor = Color.White;
             lblHeadline.Text = headline;
             txtDetails.Text = details;
+        }
+
+        private Color GetStatusBackColor(StatusTone tone)
+        {
+            switch (tone)
+            {
+                case StatusTone.Success:
+                    return Color.FromArgb(32, 102, 52);
+                case StatusTone.Failure:
+                    return Color.FromArgb(132, 28, 28);
+                default:
+                    return Color.FromArgb(96, 96, 96);
+            }
         }
 
         private Image LoadLogoImage()
@@ -100,6 +144,13 @@ namespace SimpleSmbTester
             {
                 dialog.ShowDialog(this);
             }
+        }
+
+        private enum StatusTone
+        {
+            Neutral,
+            Success,
+            Failure
         }
     }
 }

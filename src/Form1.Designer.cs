@@ -156,6 +156,7 @@ namespace SimpleSmbTester
             this.txtPath.Name = "txtPath";
             this.txtPath.Size = new Size(652, 22);
             this.txtPath.TabIndex = 4;
+            this.txtPath.TextChanged += new System.EventHandler(this.InputFields_TextChanged);
             // 
             // lblUsername
             // 
@@ -172,6 +173,7 @@ namespace SimpleSmbTester
             this.txtUsername.Name = "txtUsername";
             this.txtUsername.Size = new Size(316, 22);
             this.txtUsername.TabIndex = 6;
+            this.txtUsername.TextChanged += new System.EventHandler(this.InputFields_TextChanged);
             // 
             // lblPassword
             // 
@@ -189,6 +191,7 @@ namespace SimpleSmbTester
             this.txtPassword.PasswordChar = '*';
             this.txtPassword.Size = new Size(313, 22);
             this.txtPassword.TabIndex = 8;
+            this.txtPassword.TextChanged += new System.EventHandler(this.InputFields_TextChanged);
             // 
             // btnTest
             // 
@@ -208,7 +211,7 @@ namespace SimpleSmbTester
             this.lblResult.Name = "lblResult";
             this.lblResult.Size = new Size(120, 34);
             this.lblResult.TabIndex = 10;
-            this.lblResult.Text = "FAILURE";
+            this.lblResult.Text = string.Empty;
             this.lblResult.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // lblHeadline
@@ -219,7 +222,7 @@ namespace SimpleSmbTester
             this.lblHeadline.Padding = new Padding(8, 8, 8, 8);
             this.lblHeadline.Size = new Size(526, 34);
             this.lblHeadline.TabIndex = 11;
-            this.lblHeadline.Text = "Ready to test a UNC path.";
+            this.lblHeadline.Text = "Enter a UNC path, username, and password.";
             this.lblHeadline.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // txtDetails
