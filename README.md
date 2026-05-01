@@ -11,7 +11,7 @@ It is designed for quick troubleshooting when you need to confirm whether a targ
 ## Screenshot
 
 <p align="center">
-  <img src="assets/SimpleSmbTester-screenshot.png" alt="Simple SMB Tester application screenshot" width="720" />
+  <img src="assets/SimpleSmbTester-screenshot-v2.png" alt="Simple SMB Tester application screenshot" width="720" />
 </p>
 
 ## Features
