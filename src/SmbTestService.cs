@@ -23,7 +23,11 @@ namespace SimpleSmbTester
 
     internal static class SmbTestService
     {
-        public static SmbTestResult Test(string rawPath, string rawUsername, string password, SmbProtocolSelection protocol)
+        private const string ProbeFileName = "smb-test-probe.txt";
+        private const uint StatusUnsuccessful = 0xC0000001u;
+        private static readonly byte[] ProbeFileContents = System.Text.Encoding.UTF8.GetBytes("Simple SMB Tester write probe\r\n");
+
+        public static SmbTestResult Test(string rawPath, string rawUsername, string password, SmbProtocolSelection protocol, bool createTestFile)
         {
             try
             {
@@ -33,11 +37,11 @@ namespace SimpleSmbTester
                 switch (protocol)
                 {
                     case SmbProtocolSelection.Smb1:
-                        return TestSmb1(pathInfo, credential, password);
+                        return TestSmb1(pathInfo, credential, password, createTestFile);
                     case SmbProtocolSelection.Smb2:
-                        return TestSmb2Or3(pathInfo, credential, password, ExactSmbDialectFamily.Smb2Only, "SMB 2");
+                        return TestSmb2Or3(pathInfo, credential, password, ExactSmbDialectFamily.Smb2Only, "SMB 2", createTestFile);
                     case SmbProtocolSelection.Smb3:
-                        return TestSmb2Or3(pathInfo, credential, password, ExactSmbDialectFamily.Smb3Only, "SMB 3");
+                        return TestSmb2Or3(pathInfo, credential, password, ExactSmbDialectFamily.Smb3Only, "SMB 3", createTestFile);
                     default:
                         return Fail("Unsupported SMB selection.", "Choose SMB 1, SMB 2, or SMB 3.");
                 }
@@ -48,7 +52,7 @@ namespace SimpleSmbTester
             }
         }
 
-        private static SmbTestResult TestSmb1(SharePathInfo pathInfo, CredentialParts credential, string password)
+        private static SmbTestResult TestSmb1(SharePathInfo pathInfo, CredentialParts credential, string password, bool createTestFile)
         {
             SMB1Client client = null;
             object store = null;
@@ -90,7 +94,18 @@ namespace SimpleSmbTester
                     return Fail("Credential worked, but the folder path was not accessible.", "Protocol: SMB 1\r\nTransport: " + transportLabel + "\r\nStatus: " + FormatStatus(folderStatus) + "\r\n" + folderMessage);
                 }
 
-                return Success("SMB 1 test succeeded.", "Protocol: SMB 1\r\nTransport: " + transportLabel + "\r\nShare: \\\\" + pathInfo.ServerName + "\\" + pathInfo.ShareName + "\r\nFolder: " + (string.IsNullOrEmpty(pathInfo.RelativePath) ? "<share root>" : pathInfo.RelativePath));
+                string createdFilePath = null;
+                if (createTestFile)
+                {
+                    NTStatus writeStatus;
+                    string writeMessage;
+                    if (!TryCreateProbeFile(store, pathInfo.RelativePath, out writeStatus, out writeMessage, out createdFilePath))
+                    {
+                        return Fail("Credential worked, but writing the test file failed.", "Protocol: SMB 1\r\nTransport: " + transportLabel + "\r\nStatus: " + FormatStatus(writeStatus) + "\r\n" + writeMessage);
+                    }
+                }
+
+                return Success("SMB 1 test succeeded.", BuildSuccessDetails("SMB 1", transportLabel, pathInfo, createdFilePath));
             }
             finally
             {
@@ -100,7 +115,7 @@ namespace SimpleSmbTester
             }
         }
 
-        private static SmbTestResult TestSmb2Or3(SharePathInfo pathInfo, CredentialParts credential, string password, ExactSmbDialectFamily dialectFamily, string requestedLabel)
+        private static SmbTestResult TestSmb2Or3(SharePathInfo pathInfo, CredentialParts credential, string password, ExactSmbDialectFamily dialectFamily, string requestedLabel, bool createTestFile)
         {
             ExactSmb2Client client = null;
             object store = null;
@@ -133,7 +148,18 @@ namespace SimpleSmbTester
                     return Fail("Credential worked, but the folder path was not accessible.", "Requested protocol: " + requestedLabel + "\r\nNegotiated dialect: " + client.NegotiatedDialect + "\r\nStatus: " + FormatStatus(folderStatus) + "\r\n" + folderMessage);
                 }
 
-                return Success(requestedLabel + " test succeeded.", "Requested protocol: " + requestedLabel + "\r\nNegotiated dialect: " + client.NegotiatedDialect + "\r\nShare: \\\\" + pathInfo.ServerName + "\\" + pathInfo.ShareName + "\r\nFolder: " + (string.IsNullOrEmpty(pathInfo.RelativePath) ? "<share root>" : pathInfo.RelativePath));
+                string createdFilePath = null;
+                if (createTestFile)
+                {
+                    NTStatus writeStatus;
+                    string writeMessage;
+                    if (!TryCreateProbeFile(store, pathInfo.RelativePath, out writeStatus, out writeMessage, out createdFilePath))
+                    {
+                        return Fail("Credential worked, but writing the test file failed.", "Requested protocol: " + requestedLabel + "\r\nNegotiated dialect: " + client.NegotiatedDialect + "\r\nStatus: " + FormatStatus(writeStatus) + "\r\n" + writeMessage);
+                    }
+                }
+
+                return Success(requestedLabel + " test succeeded.", BuildSuccessDetails(requestedLabel, client.NegotiatedDialect.ToString(), pathInfo, createdFilePath));
             }
             finally
             {
@@ -186,6 +212,79 @@ namespace SimpleSmbTester
 
             message = "The credential authenticated, but the folder path could not be opened. Verify the folder exists and that the account has access.";
             return false;
+        }
+
+        private static bool TryCreateProbeFile(object store, string relativePath, out NTStatus status, out string message, out string createdFilePath)
+        {
+            createdFilePath = CombineRelativePath(relativePath, ProbeFileName);
+
+            var createFile = store.GetType().GetMethod("CreateFile");
+            var writeFile = store.GetType().GetMethod("WriteFile");
+            var closeFile = store.GetType().GetMethod("CloseFile");
+            if (createFile == null || writeFile == null || closeFile == null)
+            {
+                status = NTStatus.STATUS_NOT_SUPPORTED;
+                message = "The SMB library did not expose the expected file-store methods for creating a test file.";
+                return false;
+            }
+
+            object handle = null;
+            try
+            {
+                var createArguments = new object[]
+                {
+                    handle,
+                    default(FileStatus),
+                    createdFilePath,
+                    AccessMask.GENERIC_WRITE | AccessMask.SYNCHRONIZE,
+                    FileAttributes.Normal,
+                    ShareAccess.Read | ShareAccess.Write | ShareAccess.Delete,
+                    CreateDisposition.FILE_OVERWRITE_IF,
+                    CreateOptions.FILE_NON_DIRECTORY_FILE | CreateOptions.FILE_SYNCHRONOUS_IO_NONALERT,
+                    null
+                };
+
+                status = (NTStatus)createFile.Invoke(store, createArguments);
+                handle = createArguments[0];
+                if (status != NTStatus.STATUS_SUCCESS || handle == null)
+                {
+                    message = "The credential authenticated and the folder opened, but the tester could not create the probe file.";
+                    return false;
+                }
+
+                var writeArguments = new object[]
+                {
+                    0,
+                    handle,
+                    0L,
+                    ProbeFileContents
+                };
+
+                status = (NTStatus)writeFile.Invoke(store, writeArguments);
+                var bytesWritten = (int)writeArguments[0];
+                if (status != NTStatus.STATUS_SUCCESS)
+                {
+                    message = "The tester created the probe file but could not write its text content.";
+                    return false;
+                }
+
+                if (bytesWritten != ProbeFileContents.Length)
+                {
+                    status = unchecked((NTStatus)StatusUnsuccessful);
+                    message = "The tester wrote only part of the probe file content.";
+                    return false;
+                }
+
+                message = "Created probe file: " + createdFilePath;
+                return true;
+            }
+            finally
+            {
+                if (handle != null)
+                {
+                    closeFile.Invoke(store, new[] { handle });
+                }
+            }
         }
 
         private static void SafeDisconnectStore(object store)
@@ -249,6 +348,27 @@ namespace SimpleSmbTester
         private static string FormatStatus(NTStatus status)
         {
             return status + " (0x" + ((uint)status).ToString("X8") + ")";
+        }
+
+        private static string BuildSuccessDetails(string protocolLabel, string transportOrDialect, SharePathInfo pathInfo, string createdFilePath)
+        {
+            var details = "Protocol: " + protocolLabel + "\r\nTransport/Dialect: " + transportOrDialect + "\r\nShare: \\\\" + pathInfo.ServerName + "\\" + pathInfo.ShareName + "\r\nFolder: " + (string.IsNullOrEmpty(pathInfo.RelativePath) ? "<share root>" : pathInfo.RelativePath);
+            if (!string.IsNullOrEmpty(createdFilePath))
+            {
+                details += "\r\nCreated test file: " + createdFilePath;
+            }
+
+            return details;
+        }
+
+        private static string CombineRelativePath(string relativePath, string fileName)
+        {
+            if (string.IsNullOrEmpty(relativePath))
+            {
+                return fileName;
+            }
+
+            return relativePath.TrimEnd('\\') + "\\" + fileName;
         }
 
         private static SmbTestResult Fail(string statusText, string detailsText)

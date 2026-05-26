@@ -19,6 +19,7 @@ It is designed for quick troubleshooting when you need to confirm whether a targ
 - Targets **.NET Framework 4.6**
 - Tests **SMB 1**, **SMB 2**, and **SMB 3**
 - Validates both authentication and the requested **share/folder path**
+- Can optionally create a small **test text file** in the target folder to verify write access
 - Shows a clear **success/failure** result in the UI
 - Includes a portable **single EXE** build in [`artifacts/SimpleSmbTester.exe`](./artifacts/SimpleSmbTester.exe)
 
@@ -48,11 +49,17 @@ That makes it useful for separating:
 2. Choose the SMB version you want to test.
 3. Enter a UNC path such as `\\server\share` or `\\server\share\folder`.
 4. Enter the username and password.
-5. Click **Test Credentials**.
+5. Optional: enable **Create test text file in this folder** if you want to verify write access by creating `smb-test-probe.txt`.
+6. Click **Test Credentials**.
+
+## Write Access Probe
+
+When the **Create test text file in this folder** option is enabled, the app creates `smb-test-probe.txt` in the target folder and writes a short text payload to it. This lets you confirm that the credentials can do more than open the folder path.
 
 ## Project Structure
 
 - `src/` - WinForms source code and project file
+- `tests/` - MSTest coverage for SMB service behavior
 - `assets/` - logo, icon, and donation QR image
 - `artifacts/` - ready-to-run EXE
 

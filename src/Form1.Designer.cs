@@ -26,6 +26,7 @@ namespace SimpleSmbTester
         private ToolStripMenuItem exitToolStripMenuItem;
         private ToolStripMenuItem helpToolStripMenuItem;
         private ToolStripMenuItem aboutToolStripMenuItem;
+        private CheckBox chkCreateTestFile;
 
         protected override void Dispose(bool disposing)
         {
@@ -59,6 +60,7 @@ namespace SimpleSmbTester
             this.exitToolStripMenuItem = new ToolStripMenuItem();
             this.helpToolStripMenuItem = new ToolStripMenuItem();
             this.aboutToolStripMenuItem = new ToolStripMenuItem();
+            this.chkCreateTestFile = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureLogo)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -193,12 +195,22 @@ namespace SimpleSmbTester
             this.txtPassword.TabIndex = 8;
             this.txtPassword.TextChanged += new System.EventHandler(this.InputFields_TextChanged);
             // 
+            // chkCreateTestFile
+            // 
+            this.chkCreateTestFile.AutoSize = true;
+            this.chkCreateTestFile.Location = new Point(24, 248);
+            this.chkCreateTestFile.Name = "chkCreateTestFile";
+            this.chkCreateTestFile.Size = new Size(198, 19);
+            this.chkCreateTestFile.TabIndex = 9;
+            this.chkCreateTestFile.Text = "Create test text file in this folder";
+            this.chkCreateTestFile.UseVisualStyleBackColor = true;
+            // 
             // btnTest
             // 
             this.btnTest.Location = new Point(561, 108);
             this.btnTest.Name = "btnTest";
             this.btnTest.Size = new Size(115, 30);
-            this.btnTest.TabIndex = 9;
+            this.btnTest.TabIndex = 10;
             this.btnTest.Text = "Test Credentials";
             this.btnTest.UseVisualStyleBackColor = true;
             this.btnTest.Click += new System.EventHandler(this.btnTest_Click);
@@ -210,7 +222,7 @@ namespace SimpleSmbTester
             this.lblResult.Location = new Point(24, 263);
             this.lblResult.Name = "lblResult";
             this.lblResult.Size = new Size(120, 34);
-            this.lblResult.TabIndex = 10;
+            this.lblResult.TabIndex = 11;
             this.lblResult.Text = string.Empty;
             this.lblResult.TextAlign = ContentAlignment.MiddleCenter;
             // 
@@ -221,7 +233,7 @@ namespace SimpleSmbTester
             this.lblHeadline.Name = "lblHeadline";
             this.lblHeadline.Padding = new Padding(8, 8, 8, 8);
             this.lblHeadline.Size = new Size(526, 34);
-            this.lblHeadline.TabIndex = 11;
+            this.lblHeadline.TabIndex = 12;
             this.lblHeadline.Text = "Enter a UNC path, username, and password.";
             this.lblHeadline.TextAlign = ContentAlignment.MiddleLeft;
             // 
@@ -233,7 +245,7 @@ namespace SimpleSmbTester
             this.txtDetails.ReadOnly = true;
             this.txtDetails.ScrollBars = ScrollBars.Vertical;
             this.txtDetails.Size = new Size(652, 106);
-            this.txtDetails.TabIndex = 12;
+            this.txtDetails.TabIndex = 13;
             // 
             // lblNote
             // 
@@ -242,7 +254,7 @@ namespace SimpleSmbTester
             this.lblNote.Location = new Point(21, 429);
             this.lblNote.Name = "lblNote";
             this.lblNote.Size = new Size(437, 13);
-            this.lblNote.TabIndex = 13;
+            this.lblNote.TabIndex = 14;
             this.lblNote.Text = "SMB 1 is typically disabled by default on modern Windows Server builds, including Server 2022.";
             // 
             // Form1
@@ -251,6 +263,7 @@ namespace SimpleSmbTester
             this.AutoScaleDimensions = new SizeF(7F, 15F);
             this.AutoScaleMode = AutoScaleMode.Font;
             this.ClientSize = new Size(704, 458);
+            this.Controls.Add(this.chkCreateTestFile);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.lblNote);
             this.Controls.Add(this.txtDetails);

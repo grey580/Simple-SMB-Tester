@@ -34,12 +34,14 @@ namespace SimpleSmbTester
             }
 
             ToggleInputs(false);
-            SetStatus(false, "Testing...", "Connecting to the share and validating the entered folder.");
+            SetStatus(false, "Testing...", chkCreateTestFile.Checked
+                ? "Connecting to the share, validating the folder, and creating a test text file."
+                : "Connecting to the share and validating the entered folder.");
 
             try
             {
                 var protocol = (SmbProtocolSelection)comboSmbVersion.SelectedIndex;
-                var result = await Task.Run(() => SmbTestService.Test(txtPath.Text, txtUsername.Text, txtPassword.Text, protocol));
+                var result = await Task.Run(() => SmbTestService.Test(txtPath.Text, txtUsername.Text, txtPassword.Text, protocol, chkCreateTestFile.Checked));
                 SetStatus(result.Success, result.StatusText, result.DetailsText);
             }
             catch (Exception ex)
@@ -58,6 +60,7 @@ namespace SimpleSmbTester
             txtPath.Enabled = enabled;
             txtUsername.Enabled = enabled;
             txtPassword.Enabled = enabled;
+            chkCreateTestFile.Enabled = enabled;
             btnTest.Enabled = enabled;
         }
 
